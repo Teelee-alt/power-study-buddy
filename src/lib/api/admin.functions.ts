@@ -310,7 +310,7 @@ export const adminSeedInitialContent = createServerFn({ method: "POST" })
       // Only seed cards if topic has none
       const { count } = await supabaseAdmin.from("cards").select("*", { count: "exact", head: true }).eq("topic_id", topicId);
       if ((count ?? 0) > 0) continue;
-      const rows = t.cards.map((c, i) => ({
+      const rows = t.cards.map((c: { q: string; a: string; d: "easy" | "medium" | "hard" }, i: number) => ({
         topic_id: topicId,
         question: c.q,
         answer: c.a,
