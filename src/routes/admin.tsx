@@ -141,8 +141,39 @@ function RequestsPanel() {
                   <Button size="sm" variant="outline" onClick={() => reject(r.id)}><X className="h-4 w-4 mr-1" /> Reject</Button>
                 </>
               )}
-              {r.status === "approved" && r.generated_code && (
-                <Button size="sm" variant="outline" onClick={() => resend(r.id)}><Mail className="h-4 w-4 mr-1" /> Resend email</Button>
+      {r.status === "approved" && r.generated_code && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const subject = encodeURIComponent("Your Access Code");
+                      const body = encodeURIComponent(
+                        `Hi ${r.full_name},\n\nYour access code: ${r.generated_code}\n\nSign in with your full name and this code.\n\nThanks.`
+                      );
+                      const to = r.email ? encodeURIComponent(r.email) : "";
+                      window.open(
+                        `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    <Mail className="h-4 w-4 mr-1" /> Open Gmail
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const phone = (r.whatsapp || "").replace(/[^0-9]/g, "");
+                      const text = encodeURIComponent(
+                        `Hi ${r.full_name}, your access code is: ${r.generated_code}\n\nSign in with your full name and this code.`
+                      );
+                      window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+                    }}
+                  >
+                    <Send className="h-4 w-4 mr-1" /> Send via WhatsApp
+                  </Button>
+                </>
               )}
               <Button size="sm" variant="ghost" onClick={() => del(r.id)}><Trash2 className="h-4 w-4" /></Button>
             </div>
