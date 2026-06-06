@@ -1,200 +1,176 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { getAgentInfo, getPricing, getPreviewCards } from "@/lib/api/public.functions";
+import { useEffect, useState } from "react";
+import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { BlockMath, InlineMath } from "react-katex";
-import { ChevronLeft, ChevronRight, Zap, BookOpen, Users, Clock } from "lucide-react";
+import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck } from "lucide-react";
+import logo from "@/assets/logo.png";
+import { InstallAppButton } from "@/components/InstallAppButton";
+import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Power Electronics 1 — Master one card at a time" },
-      { name: "description", content: "Real exam questions turned into interactive Q&A flashcards. 400+ cards, 12 topics, model-answer accuracy." },
-      { property: "og:title", content: "Power Electronics 1 — Revision App" },
-      { property: "og:description", content: "Interactive flashcards for National Diploma & undergrad Power Electronics students." },
-    ],
-  }),
-  component: Landing,
-});
-
-function renderMixed(text: string) {
-  // Render text with $...$ inline and $$...$$ block math.
-  const parts: React.ReactNode[] = [];
-  const regex = /\$\$([^$]+)\$\$|\$([^$]+)\$/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let key = 0;
-  while ((m = regex.exec(text))) {
-    if (m.index > last) parts.push(<span key={key++}>{text.slice(last, m.index)}</span>);
-    if (m[1]) parts.push(<BlockMath key={key++} math={m[1]} />);
-    else if (m[2]) parts.push(<InlineMath key={key++} math={m[2]} />);
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) parts.push(<span key={key++}>{text.slice(last)}</span>);
-  return parts;
-}
+export const Route = createFileRoute("/")({ component: Landing });
 
 function Landing() {
-  const { data: agent } = useQuery({ queryKey: ["agent"], queryFn: () => getAgentInfo() });
-  const { data: pricing } = useQuery({ queryKey: ["pricing"], queryFn: () => getPricing() });
-  const [open, setOpen] = useState(false);
-  const [idx, setIdx] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const { data: preview } = useQuery({ queryKey: ["preview"], queryFn: () => getPreviewCards(), enabled: open });
-  const cards = preview?.cards ?? [];
-  const card = cards[idx];
-
+  const [settings, setSettings] = useState<{ primary_agent_name: string; solo_amount: number; pair_amount: number } | null>(null);
+  useEffect(() => {
+    supabase.from("app_settings").select("primary_agent_name, solo_amount, pair_amount").eq("id", true).maybeSingle()
+      .then(({ data }) => data && setSettings(data as any));
+  }, []);
+  const DEFAULT_AGENT_PLACEHOLDER = "Contact admin for agent details";
+  const agentRaw = settings?.primary_agent_name?.trim();
+  const agent = agentRaw && agentRaw !== DEFAULT_AGENT_PLACEHOLDER ? agentRaw : null;
+  const solo = settings?.solo_amount ?? 5;
+  const pair = settings?.pair_amount ?? 8;
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-hero-gradient text-navy-foreground">
-        <div className="mx-auto max-w-6xl px-6 py-24 md:py-32">
-          <div className="flex items-center gap-2 text-sm font-medium opacity-80">
-            <Zap className="h-4 w-4" />
-            <span>Power Electronics 1 — Revision App</span>
+    <div className="min-h-screen bg-hero">
+      <AppHeader />
+      <main>
+        {/* HERO */}
+        <section className="container mx-auto px-4 pt-16 pb-12 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-xs text-secondary mb-6">
+            <Zap className="h-3 w-3" /> Built from real National Diploma past papers
           </div>
-          <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-tight md:text-6xl">
-            Master Power Electronics 1 — one card at a time
+          <img src={logo} alt="Power Electronics 1 logo" className="mx-auto h-28 w-auto mb-6 drop-shadow-[0_0_60px_rgba(99,102,241,0.55)]" />
+          <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight leading-tight text-white">
+            Master Power Electronics.<br />
+            <span className="text-brand-gradient">Ace your exam with confidence.</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg opacity-90 md:text-xl">
-            Real exam questions turned into interactive Q&amp;A flashcards. Model-answer accurate.
-            Try a sample card for free.
+          <p className="mt-5 max-w-2xl mx-auto text-lg text-white/80">
+            Every concept that has ever appeared in your exam, rebuilt as flip-cards your brain actually remembers.
+            <strong className="text-white"> First 5 cards of every topic are free.</strong> No card. No setup. No catch.
           </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Button asChild size="lg" className="bg-primary-gradient text-primary-foreground shadow-glow hover:opacity-90">
-              <Link to="/request-access">Request Access</Link>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground shadow-glow text-base">
+              <Link to="/request-access"><UserPlus className="h-4 w-4 mr-1" /> Request Access</Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/20" onClick={() => { setOpen(true); setIdx(0); setFlipped(false); }}>
-              See Sample Card
+            <Button asChild size="lg" variant="outline" className="text-white border-white/40 hover:bg-white/10 hover:text-white">
+              <Link to="/sign-in"><KeyRound className="h-4 w-4 mr-1" /> I have a code</Link>
             </Button>
-            <Button asChild size="lg" variant="ghost" className="text-white hover:bg-white/10">
-              <Link to="/signin">Sign In</Link>
-            </Button>
-          </div>
+            <InstallAppButton />
 
-          {/* Trust badges */}
-          <div className="mt-16 grid grid-cols-2 gap-6 md:grid-cols-4">
-            {[
-              { icon: BookOpen, label: "400+ cards from real papers" },
-              { icon: Zap, label: "100% model-answer accuracy" },
-              { icon: Clock, label: "15 min a day is enough" },
-              { icon: Users, label: "12 complete past paper sets" },
-            ].map((b) => (
-              <div key={b.label} className="flex items-start gap-3">
-                <b.icon className="mt-1 h-5 w-5 shrink-0 opacity-80" />
-                <span className="text-sm font-medium text-white">{b.label}</span>
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-xs text-white/70">
+            <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> No subscription</span>
+            <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> No exam dates, ever</span>
+            <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> Works offline once installed</span>
+          </div>
+        </section>
+
+        {/* PAIN _ AGITATE */}
+        <section className="container mx-auto px-4 py-12">
+          <Card className="p-8 md:p-12 bg-card text-card-foreground shadow-card-elev">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h2 className="text-3xl font-bold mb-4">Power Electronics concepts tested year after year.</h2>
+                <p className="text-muted-foreground">
+                  Thyristors, diodes, and rectifiers. Gate triggering and commutation. DC-DC and AC-DC conversion.
+                  Thermal management and snubber design. Protection circuits. The same exam-tested topics delivered in exam format.
+                </p>
+                <p className="mt-4 font-semibold">
+                  The students who pass aren't smarter. <span className="text-brand-gradient">They've just seen the questions before.</span>
+                </p>
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { i: Brain, n: "400+", l: "exam questions with answers" },
+                  { i: Trophy, n: "100%", l: "professional LaTeX formatting" },
+                  { i: Clock, n: "20 min", l: "daily revision is enough" },
+                  { i: BookOpen, n: "5", l: "exam papers covered" },
+                ].map(({ i: Icon, n, l }) => (
+                  <div key={l} className="rounded-xl border border-black/20 p-4 text-center bg-white">
+                    <Icon className="h-5 w-5 mx-auto text-secondary mb-2" />
+                    <p className="text-2xl font-bold text-black">{n}</p>
+                    <p className="text-xs text-black mt-1">{l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </section>
+
+        {/* HOW */}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-3xl font-bold text-center mb-2 text-white">From confused to confident in 3 steps</h2>
+          <p className="text-center text-white/70 mb-10">No downloads required. No setup. Open and revise.</p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { i: Sparkles, t: "1. Request access", d: "Enter your full name and WhatsApp number. Admin approves your request." },
+              { i: KeyRound, t: "2. Pay an agent", d: `Hand over $${solo} (solo) or $${pair} (two of you together) to an authorised agent. Agent notifies admin after payment.` },
+              { i: Cpu, t: "3. Get access code", d: "Admin sends your access code via agent or WhatsApp. Sign in with your full name + code, every card unlocks. Install to your phone and revise offline." },
+            ].map(({ i: Icon, t, d }) => (
+              <Card key={t} className="p-6 bg-card text-card-foreground shadow-card-elev hover:border-secondary transition border-2 border-transparent">
+                <div className="h-12 w-12 rounded-lg bg-brand-gradient flex items-center justify-center mb-4">
+                  <Icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <h3 className="font-semibold text-lg">{t}</h3>
+                <p className="text-muted-foreground mt-2 text-sm">{d}</p>
+              </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* How It Works */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
-        <h2 className="text-center text-3xl font-bold md:text-4xl">How it works</h2>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          {[
-            { n: 1, t: "Request access", d: "Fill in your full name and WhatsApp number on the access form." },
-            { n: 2, t: "Contact an agent", d: `Pay $${pricing?.individual_price ?? 5} (individual) or $${pricing?.group_price ?? 8} (two people together) via the authorised agent.` },
-            { n: 3, t: "Agent sends code", d: "After admin approval, your agent sends your access code on WhatsApp. No email needed." },
-          ].map((s) => (
-            <Card key={s.n} className="bg-card-gradient shadow-card border-0 p-8">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-gradient text-xl font-bold text-primary-foreground shadow-glow">
-                {s.n}
+        {/* PRICE */}
+        <section className="container mx-auto px-4 py-12">
+          <Card className="p-10 bg-card text-card-foreground shadow-card-elev">
+            <h2 className="text-3xl font-bold text-center">Cheaper than a rewrite.</h2>
+            <p className="text-center text-muted-foreground mt-2">Pay once. Keep access till end of exam. No monthly anything.</p>
+            <div className="grid md:grid-cols-2 gap-6 mt-8">
+              <div className="rounded-xl border-2 border-border p-6 text-center">
+                <p className="text-sm uppercase tracking-wider text-muted-foreground">Solo</p>
+                <p className="text-5xl font-bold mt-2">${solo}</p>
+                <p className="text-sm text-muted-foreground mt-2">One individual, full access</p>
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-foreground">{s.t}</h3>
-              <p className="mt-3 text-muted-foreground">{s.d}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section className="bg-secondary/40 py-20">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="text-3xl font-bold md:text-4xl">Simple pricing</h2>
-          <p className="mt-3 text-muted-foreground">Pay your agent once. Your access code never expires.</p>
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <Card className="bg-card-gradient shadow-card border-0 p-10">
-              <h3 className="text-lg font-semibold text-muted-foreground">Individual</h3>
-              <div className="mt-3 text-5xl font-bold text-foreground">${pricing?.individual_price ?? 5}</div>
-              <p className="mt-4 text-sm text-muted-foreground">Full access for one student. Permanent.</p>
-            </Card>
-            <Card className="border-0 p-10 shadow-glow bg-hero-gradient text-navy-foreground">
-              <h3 className="text-lg font-semibold opacity-90">Two people together</h3>
-              <div className="mt-3 text-5xl font-bold">${pricing?.group_price ?? 8}</div>
-              <p className="mt-4 text-sm opacity-90">Both get their own access codes. ${((pricing?.group_price ?? 8) / 2).toFixed(2)} each.</p>
-            </Card>
-          </div>
-          {agent && (
-            <div className="mt-10 inline-flex flex-col items-center rounded-xl border border-border bg-card px-8 py-6 shadow-card">
-              <span className="text-sm font-medium text-muted-foreground">Authorised agent</span>
-              <span className="mt-2 text-xl font-semibold text-foreground">{agent.name}</span>
-              <span className="mt-1 text-sm text-primary">{agent.contact}</span>
+              <div className="rounded-xl border-2 border-secondary p-6 text-center bg-secondary/5 relative">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full font-semibold">BEST VALUE</span>
+                <p className="text-sm uppercase tracking-wider text-secondary">Pair (sign up together)</p>
+                <p className="text-5xl font-bold mt-2">${pair}</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Two new users, registered together. Save together when you sign up as a pair.
+                </p>
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+            <p className="text-center mt-6 text-sm text-muted-foreground">Pay any authorised agent in cash. No card. No online payment.</p>
+            <div className="mt-6 rounded-lg border border-secondary/40 bg-secondary/5 p-4 flex items-center justify-center gap-2 text-sm text-center">
+              <UserCheck className="h-4 w-4 text-secondary shrink-0" />
+              {agent
+                ? <span className="text-foreground">Authorised agent: <strong>{agent}</strong></span>
+                : <span className="text-muted-foreground">Admin will name your authorised agent after you submit a request.</span>}
+            </div>
+          </Card>
+        </section>
 
-      {/* Footer */}
-      <footer className="bg-navy py-12 text-navy-foreground">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 text-center">
-          <div className="text-lg font-semibold">Power Electronics 1</div>
-          <div className="flex flex-wrap justify-center gap-6 text-sm opacity-80">
-            <Link to="/request-access" className="hover:opacity-100">Request Access</Link>
-            <Link to="/signin" className="hover:opacity-100">Sign In</Link>
-            <a href="mailto:powerelectronics1@gmail.com" className="hover:opacity-100">Support</a>
+
+
+
+        {/* TRUST */}
+        <section className="container mx-auto px-4 py-12">
+          <div className="grid sm:grid-cols-3 gap-4 text-sm">
+            {[
+              { i: BookOpen, t: "Real exam content", d: "Five full past paper sets, model answers verified." },
+              { i: Download, t: "Install on phone", d: "Add to home screen, revise even offline." },
+              { i: Mail, t: "Real human support", d: "powerelectronics1@gmail.com" },
+            ].map(({ i: Icon, t, d }) => (
+              <Card key={t} className="p-4 bg-card text-card-foreground">
+                <Icon className="h-5 w-5 text-secondary mb-2" />
+                <p className="font-semibold">{t}</p>
+                <p className="text-xs text-muted-foreground mt-1">{d}</p>
+              </Card>
+            ))}
           </div>
-          <div className="mt-4 text-xs opacity-60">© {new Date().getFullYear()} Power Electronics 1. All rights reserved.</div>
-        </div>
+        </section>
+
+        {/* FINAL CTA */}
+        <section className="container mx-auto px-4 py-16 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white">Your future self is begging you to start.</h2>
+          <p className="text-white/70 mt-3 max-w-xl mx-auto">5 free cards per topic. No code needed. Click. Request access. Revise.</p>
+          <Button asChild size="lg" className="mt-6 bg-brand-gradient text-primary-foreground shadow-glow">
+            <Link to="/request-access">Request Access</Link>
+          </Button>
+        </section>
+      </main>
+      <footer className="border-t border-border/40 mt-6 py-8 text-center text-sm text-white/60">
+        © Power Electronics 1. Master the circuit. Control the power. Ace the exam.
       </footer>
-
-      {/* Sample card modal */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{preview?.topic?.name ?? "Sample Cards"}</DialogTitle>
-          </DialogHeader>
-          {cards.length === 0 ? (
-            <div className="py-12 text-center text-muted-foreground">
-              No preview cards yet. Once the admin seeds the initial content, sample cards will appear here.
-            </div>
-          ) : card ? (
-            <>
-              <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-                <span className="rounded-full bg-secondary px-2 py-1 font-medium uppercase">{card.difficulty}</span>
-                <span>{idx + 1} / {cards.length}</span>
-              </div>
-              <button
-                onClick={() => setFlipped((f) => !f)}
-                className="min-h-[260px] w-full rounded-xl border border-border bg-card-gradient p-8 text-left shadow-card transition hover:shadow-elegant"
-              >
-                <div className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  {flipped ? "Answer" : "Question"} — click to flip
-                </div>
-                <div className="mt-4 whitespace-pre-wrap text-foreground">
-                  {renderMixed(flipped ? card.answer : card.question)}
-                </div>
-              </button>
-              <div className="mt-4 flex justify-between">
-                <Button variant="outline" size="sm" disabled={idx === 0} onClick={() => { setIdx(idx - 1); setFlipped(false); }}>
-                  <ChevronLeft className="mr-1 h-4 w-4" /> Previous
-                </Button>
-                <Button variant="outline" size="sm" disabled={idx === cards.length - 1} onClick={() => { setIdx(idx + 1); setFlipped(false); }}>
-                  Next <ChevronRight className="ml-1 h-4 w-4" />
-                </Button>
-              </div>
-              <div className="mt-4 text-center text-xs text-muted-foreground">
-                Want full access?{" "}
-                <Link to="/request-access" className="font-medium text-primary hover:underline">Request access</Link>
-              </div>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
