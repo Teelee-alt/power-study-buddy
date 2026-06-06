@@ -14,100 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_code_usage: {
+        Row: {
+          code_id: string
+          id: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_code_usage_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "access_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      access_codes: {
+        Row: {
+          agent_name: string | null
+          amount: number
+          assigned_emails: string[]
+          bound_user_id: string | null
+          code: string
+          created_at: string
+          id: string
+          notes: string | null
+          total_seats: number
+          used_seats: number
+        }
+        Insert: {
+          agent_name?: string | null
+          amount?: number
+          assigned_emails?: string[]
+          bound_user_id?: string | null
+          code: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          total_seats?: number
+          used_seats?: number
+        }
+        Update: {
+          agent_name?: string | null
+          amount?: number
+          assigned_emails?: string[]
+          bound_user_id?: string | null
+          code?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          total_seats?: number
+          used_seats?: number
+        }
+        Relationships: []
+      }
       access_requests: {
         Row: {
           access_code: string | null
           approved_at: string | null
+          auto_password: string | null
           created_at: string
+          email: string | null
           full_name: string
+          generated_code: string | null
           id: string
           status: string
+          synthetic_email: string | null
+          user_id: string | null
           whatsapp: string
         }
         Insert: {
           access_code?: string | null
           approved_at?: string | null
+          auto_password?: string | null
           created_at?: string
+          email?: string | null
           full_name: string
+          generated_code?: string | null
           id?: string
           status?: string
+          synthetic_email?: string | null
+          user_id?: string | null
           whatsapp: string
         }
         Update: {
           access_code?: string | null
           approved_at?: string | null
+          auto_password?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string
+          generated_code?: string | null
           id?: string
           status?: string
+          synthetic_email?: string | null
+          user_id?: string | null
           whatsapp?: string
         }
         Relationships: []
       }
-      agent_settings: {
+      agents: {
         Row: {
-          contact: string
-          id: number
+          contact: string | null
+          created_at: string
+          id: string
           name: string
+        }
+        Insert: {
+          contact?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          contact?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          id: boolean
+          pair_amount: number
+          primary_agent_name: string
+          solo_amount: number
           updated_at: string
         }
         Insert: {
-          contact?: string
-          id?: number
-          name?: string
+          id?: boolean
+          pair_amount?: number
+          primary_agent_name?: string
+          solo_amount?: number
           updated_at?: string
         }
         Update: {
-          contact?: string
-          id?: number
-          name?: string
+          id?: boolean
+          pair_amount?: number
+          primary_agent_name?: string
+          solo_amount?: number
           updated_at?: string
         }
         Relationships: []
-      }
-      app_users: {
-        Row: {
-          access_code: string
-          banned: boolean
-          created_at: string
-          full_name: string
-          id: string
-          last_login: string | null
-          session_expires_at: string | null
-          session_token: string | null
-          whatsapp: string
-        }
-        Insert: {
-          access_code: string
-          banned?: boolean
-          created_at?: string
-          full_name: string
-          id?: string
-          last_login?: string | null
-          session_expires_at?: string | null
-          session_token?: string | null
-          whatsapp: string
-        }
-        Update: {
-          access_code?: string
-          banned?: boolean
-          created_at?: string
-          full_name?: string
-          id?: string
-          last_login?: string | null
-          session_expires_at?: string | null
-          session_token?: string | null
-          whatsapp?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "app_users_access_code_fkey"
-            columns: ["access_code"]
-            isOneToOne: true
-            referencedRelation: "access_requests"
-            referencedColumns: ["access_code"]
-          },
-        ]
       }
       cards: {
         Row: {
@@ -117,7 +180,7 @@ export type Database = {
           id: string
           order_index: number
           question: string
-          topic_id: string
+          topic_set_id: string
         }
         Insert: {
           answer: string
@@ -126,7 +189,7 @@ export type Database = {
           id?: string
           order_index?: number
           question: string
-          topic_id: string
+          topic_set_id: string
         }
         Update: {
           answer?: string
@@ -135,137 +198,162 @@ export type Database = {
           id?: string
           order_index?: number
           question?: string
-          topic_id?: string
+          topic_set_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "cards_topic_id_fkey"
-            columns: ["topic_id"]
+            foreignKeyName: "cards_topic_set_id_fkey"
+            columns: ["topic_set_id"]
             isOneToOne: false
-            referencedRelation: "topics"
+            referencedRelation: "topic_sets"
             referencedColumns: ["id"]
           },
         ]
       }
-      pricing_settings: {
+      payment_requests: {
         Row: {
-          group_price: number
-          id: number
-          individual_price: number
+          agent_name: string | null
+          amount: number
+          created_at: string
+          id: string
+          status: string
+          student_email: string
+          student_email_2: string | null
+        }
+        Insert: {
+          agent_name?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          status?: string
+          student_email: string
+          student_email_2?: string | null
+        }
+        Update: {
+          agent_name?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          status?: string
+          student_email?: string
+          student_email_2?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          access_level: string
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
           updated_at: string
         }
         Insert: {
-          group_price?: number
-          id?: number
-          individual_price?: number
+          access_level?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
           updated_at?: string
         }
         Update: {
-          group_price?: number
-          id?: number
-          individual_price?: number
+          access_level?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      study_notes: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          order_index: number
+          title: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          title: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          order_index?: number
+          title?: string
         }
         Relationships: []
       }
       support_tickets: {
         Row: {
-          admin_response: string | null
-          app_user_id: string | null
+          admin_reply: string | null
           created_at: string
           id: string
           message: string
-          responded_at: string | null
+          replied_at: string | null
           status: string
           subject: string
-          user_full_name: string
-          user_whatsapp: string | null
+          user_email: string
+          user_id: string
         }
         Insert: {
-          admin_response?: string | null
-          app_user_id?: string | null
+          admin_reply?: string | null
           created_at?: string
           id?: string
           message: string
-          responded_at?: string | null
+          replied_at?: string | null
           status?: string
           subject: string
-          user_full_name: string
-          user_whatsapp?: string | null
+          user_email: string
+          user_id: string
         }
         Update: {
-          admin_response?: string | null
-          app_user_id?: string | null
+          admin_reply?: string | null
           created_at?: string
           id?: string
           message?: string
-          responded_at?: string | null
+          replied_at?: string | null
           status?: string
           subject?: string
-          user_full_name?: string
-          user_whatsapp?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "support_tickets_app_user_id_fkey"
-            columns: ["app_user_id"]
-            isOneToOne: false
-            referencedRelation: "app_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      system_settings: {
-        Row: {
-          app_name: string
-          callmebot_url: string | null
-          id: number
-          screenshot_protection: boolean
-          support_email: string
-          updated_at: string
-        }
-        Insert: {
-          app_name?: string
-          callmebot_url?: string | null
-          id?: number
-          screenshot_protection?: boolean
-          support_email?: string
-          updated_at?: string
-        }
-        Update: {
-          app_name?: string
-          callmebot_url?: string | null
-          id?: number
-          screenshot_protection?: boolean
-          support_email?: string
-          updated_at?: string
+          user_email?: string
+          user_id?: string
         }
         Relationships: []
       }
-      topics: {
+      topic_sets: {
         Row: {
           created_at: string
           description: string | null
-          free_preview_limit: number
+          free_card_limit: number
           id: string
-          name: string
           order_index: number
+          title: string
         }
         Insert: {
           created_at?: string
           description?: string | null
-          free_preview_limit?: number
+          free_card_limit?: number
           id?: string
-          name: string
           order_index?: number
+          title: string
         }
         Update: {
           created_at?: string
           description?: string | null
-          free_preview_limit?: number
+          free_card_limit?: number
           id?: string
-          name?: string
           order_index?: number
+          title?: string
         }
         Relationships: []
       }
@@ -295,6 +383,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_exists: { Args: never; Returns: boolean }
+      claim_admin: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -302,6 +392,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      redeem_access_code: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin"
