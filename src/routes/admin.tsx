@@ -104,8 +104,8 @@ function RequestsPanel() {
       <Card className="p-4 bg-amber-500/10 border-amber-500/40 text-card-foreground text-sm">
         <p className="flex items-start gap-2"><AlertTriangle className="h-4 w-4 mt-0.5 text-amber-500 shrink-0" />
           <span><strong>Approval flow:</strong> Agent calls you with the name of the person who paid. Find their pending
-          request below, click <strong>Approve</strong> — a unique access code is generated and emailed to them.
-          Their code is also visible here so you can copy/share manually if needed.</span></p>
+          request below and click <strong>Approve</strong> — a unique access code is generated and shown on the row.
+          Then send it manually using <strong>Open Gmail</strong> or <strong>Send via WhatsApp</strong> (both pre-fill the code).</span></p>
       </Card>
       <div className="flex gap-2">
         <Button size="sm" variant={filter === "pending" ? "default" : "outline"} onClick={() => setFilter("pending")}>Pending</Button>
@@ -137,12 +137,43 @@ function RequestsPanel() {
             <div className="flex gap-2 flex-wrap">
               {r.status === "pending" && (
                 <>
-                  <Button size="sm" onClick={() => approve(r.id)} className="bg-brand-gradient"><Check className="h-4 w-4 mr-1" /> Approve & email</Button>
+                  <Button size="sm" onClick={() => approve(r.id)} className="bg-brand-gradient"><Check className="h-4 w-4 mr-1" /> Approve & generate code</Button>
                   <Button size="sm" variant="outline" onClick={() => reject(r.id)}><X className="h-4 w-4 mr-1" /> Reject</Button>
                 </>
               )}
-              {r.status === "approved" && r.generated_code && (
-                <Button size="sm" variant="outline" onClick={() => resend(r.id)}><Mail className="h-4 w-4 mr-1" /> Resend email</Button>
+      {r.status === "approved" && r.generated_code && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const subject = encodeURIComponent("Your Access Code");
+                      const body = encodeURIComponent(
+                        `Hi ${r.full_name},\n\nYour access code: ${r.generated_code}\n\nSign in with your full name and this code.\n\nThanks.`
+                      );
+                      const to = r.email ? encodeURIComponent(r.email) : "";
+                      window.open(
+                        `https://mail.google.com/mail/?view=cm&fs=1&to=${to}&su=${subject}&body=${body}`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    <Mail className="h-4 w-4 mr-1" /> Open Gmail
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const phone = (r.whatsapp || "").replace(/[^0-9]/g, "");
+                      const text = encodeURIComponent(
+                        `Hi ${r.full_name}, your access code is: ${r.generated_code}\n\nSign in with your full name and this code.`
+                      );
+                      window.open(`https://wa.me/${phone}?text=${text}`, "_blank");
+                    }}
+                  >
+                    <Send className="h-4 w-4 mr-1" /> Send via WhatsApp
+                  </Button>
+                </>
               )}
               <Button size="sm" variant="ghost" onClick={() => del(r.id)}><Trash2 className="h-4 w-4" /></Button>
             </div>
