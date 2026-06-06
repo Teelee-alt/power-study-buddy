@@ -1,4 +1,4 @@
-import { cors, requireAdmin, sendCodeEmail, randCode, randPassword, synthEmail } from "../_shared/admin.ts";
+import { cors, requireAdmin, randCode, randPassword, synthEmail } from "../_shared/admin.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -9,10 +9,8 @@ Deno.serve(async (req) => {
 
     const { data: row } = await supa.from("access_requests").select("*").eq("id", request_id).maybeSingle();
     if (!row) throw new Error("Request not found");
-    if (!row.email) throw new Error("This request has no email");
     if (row.status === "approved" && row.generated_code) {
-      const email = await sendCodeEmail(row.email, row.full_name, row.generated_code);
-      return json({ code: row.generated_code, email });
+      return json({ code: row.generated_code, email: { sent: false, reason: "Send manually via Gmail/WhatsApp" } });
     }
 
     const synthetic_email = synthEmail();
@@ -55,8 +53,7 @@ Deno.serve(async (req) => {
       approved_at: new Date().toISOString(),
     }).eq("id", row.id);
 
-    const email = await sendCodeEmail(row.email, row.full_name, code);
-    return json({ code, email });
+    return json({ code, email: { sent: false, reason: "Send manually via Gmail/WhatsApp" } });
   } catch (e) {
     return json({ error: (e as Error).message }, 400);
   }

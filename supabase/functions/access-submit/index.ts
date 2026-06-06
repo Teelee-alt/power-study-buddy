@@ -13,7 +13,6 @@ Deno.serve(async (req) => {
     const { full_name, whatsapp, email } = await req.json();
     if (!full_name || full_name.trim().length < 2) throw new Error("Full name is required");
     if (!whatsapp || whatsapp.trim().length < 5) throw new Error("WhatsApp number is required");
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) throw new Error("Valid email required");
 
     const supa = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -22,7 +21,7 @@ Deno.serve(async (req) => {
     const { error } = await supa.from("access_requests").insert({
       full_name: full_name.trim(),
       whatsapp: whatsapp.trim(),
-      email: email.trim(),
+      email: email ? String(email).trim() : null,
     });
     if (error) throw new Error(error.message);
     return new Response(JSON.stringify({ ok: true }), {

@@ -82,21 +82,10 @@ function RequestsPanel() {
   const approve = async (id: string) => {
     try {
       const res = await accessApi.approve({ request_id: id });
-      if (res.email.sent) {
-        toast.success(`Approved. Code ${res.code} emailed.`);
-      } else {
-        toast.warning(`Approved. Code ${res.code} — email NOT sent (${res.email.reason}). Copy & send manually.`);
-      }
+      toast.success(`Approved. Code ${res.code} — copied. Send it via Gmail/WhatsApp from this row.`);
       try { await navigator.clipboard?.writeText(res.code); } catch {}
       load();
     } catch (e: any) { toast.error(e?.message || "Approval failed"); }
-  };
-  const resend = async (id: string) => {
-    try {
-      const res = await accessApi.resend({ request_id: id });
-      if (res.email.sent) toast.success("Code re-emailed");
-      else toast.warning(`Email not sent: ${res.email.reason}`);
-    } catch (e: any) { toast.error(e?.message || "Resend failed"); }
   };
   const reject = async (id: string) => {
     if (!confirm("Reject this request?")) return;
