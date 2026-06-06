@@ -84,7 +84,7 @@ function Dashboard() {
           </h1>
           <p className="text-white/90 mt-2 inline-flex items-center gap-2 flex-wrap">
             <Unlock className="h-4 w-4 text-secondary" />
-            <span className="font-medium">{isFull ? "Full access unlocked – every card across every paper is yours." : "Free preview – first cards of each topic are unlocked."}</span>
+            <span className="font-medium">Full access unlocked – every card across every topic is yours.</span>
             {totalCards > 0 && <span className="text-xs font-medium">· {totalCards} cards total</span>}
           </p>
           {showAgent && (
