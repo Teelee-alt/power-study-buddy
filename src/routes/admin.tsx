@@ -137,7 +137,7 @@ function RequestsPanel() {
             <div className="flex gap-2 flex-wrap">
               {r.status === "pending" && (
                 <>
-                  <Button size="sm" onClick={() => approve(r.id)} className="bg-brand-gradient"><Check className="h-4 w-4 mr-1" /> Approve & email</Button>
+                  <Button size="sm" onClick={() => approve(r.id)} className="bg-brand-gradient"><Check className="h-4 w-4 mr-1" /> Approve & generate code</Button>
                   <Button size="sm" variant="outline" onClick={() => reject(r.id)}><X className="h-4 w-4 mr-1" /> Reject</Button>
                 </>
               )}
