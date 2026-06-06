@@ -1,4 +1,4 @@
-import { cors, requireAdmin, sendCodeEmail, randCode, randPassword, synthEmail } from "../_shared/admin.ts";
+import { cors, requireAdmin, randCode, randPassword, synthEmail } from "../_shared/admin.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
