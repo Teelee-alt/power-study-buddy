@@ -104,8 +104,8 @@ function RequestsPanel() {
       <Card className="p-4 bg-amber-500/10 border-amber-500/40 text-card-foreground text-sm">
         <p className="flex items-start gap-2"><AlertTriangle className="h-4 w-4 mt-0.5 text-amber-500 shrink-0" />
           <span><strong>Approval flow:</strong> Agent calls you with the name of the person who paid. Find their pending
-          request below, click <strong>Approve</strong> — a unique access code is generated and emailed to them.
-          Their code is also visible here so you can copy/share manually if needed.</span></p>
+          request below and click <strong>Approve</strong> — a unique access code is generated and shown on the row.
+          Then send it manually using <strong>Open Gmail</strong> or <strong>Send via WhatsApp</strong> (both pre-fill the code).</span></p>
       </Card>
       <div className="flex gap-2">
         <Button size="sm" variant={filter === "pending" ? "default" : "outline"} onClick={() => setFilter("pending")}>Pending</Button>
