@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Zap, Volume2, Eye, EyeOff, Flag, CheckCircle2, RotateCcw } from "lucide-react";
 import { useBookmarks, useMastery } from "@/hooks/use-study-state";
-import ALL_EXAM_CARDS from "@/data/all-exam-cards";
+const ALL_EXAM_CARDS: ExamCard[] = [];
 
 export const Route = createFileRoute("/exam-mode")({ component: ExamMode });
 
