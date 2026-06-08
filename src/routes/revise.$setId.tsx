@@ -124,7 +124,7 @@ function Revise() {
             data-watermark={profile?.email || "INDUSTRIAL AUTOMATION"}
             onClick={() => !locked && setFlipped((f) => !f)}
           >
-            {locked ? (
+            {false ? (
               <div className="flex flex-col items-center justify-center text-center h-[350px] gap-4">
                 <Lock className="h-16 w-16 text-purple-500/40" />
                 <h3 className="text-2xl font-bold text-foreground">Full Access Unlocks Everything</h3>
