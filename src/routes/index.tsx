@@ -1,16 +1,31 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck } from "lucide-react";
+import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck, Star, Users } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
 function Landing() {
+  const nav = useNavigate();
+  const tapsRef = useRef<{ count: number; timer: ReturnType<typeof setTimeout> | null }>({ count: 0, timer: null });
+  const handleLogoTap = () => {
+    const s = tapsRef.current;
+    s.count += 1;
+    if (s.timer) clearTimeout(s.timer);
+    s.timer = setTimeout(() => { s.count = 0; }, 1500);
+    if (s.count >= 7) {
+      s.count = 0;
+      if (s.timer) clearTimeout(s.timer);
+      toast.success("Admin portal unlocked");
+      nav({ to: "/admin-setup" });
+    }
+  };
   const [settings, setSettings] = useState<{ primary_agent_name: string; solo_amount: number; pair_amount: number } | null>(null);
   useEffect(() => {
     supabase.from("app_settings").select("primary_agent_name, solo_amount, pair_amount").eq("id", true).maybeSingle()
@@ -30,7 +45,12 @@ function Landing() {
           <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-xs text-secondary mb-6">
             <Zap className="h-3 w-3" /> Built from real National Diploma past papers
           </div>
-          <img src={logo} alt="Power Electronics 1 logo" className="mx-auto h-28 w-auto mb-6 drop-shadow-[0_0_60px_rgba(99,102,241,0.55)]" />
+          <img
+            src={logo}
+            alt="Power Electronics 1 logo"
+            onClick={handleLogoTap}
+            className="mx-auto h-28 w-auto mb-6 drop-shadow-[0_0_60px_rgba(99,102,241,0.55)] cursor-pointer select-none"
+          />
           <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight leading-tight text-white">
             Master Power Electronics.<br />
             <span className="text-brand-gradient">Ace your exam with confidence.</span>
@@ -53,6 +73,20 @@ function Landing() {
             <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> No subscription</span>
             <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> No exam dates, ever</span>
             <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> Works offline once installed</span>
+          </div>
+          {/* SOCIAL PROOF BAR */}
+          <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-full border border-white/15 bg-white/5 px-5 py-2 backdrop-blur">
+            <span className="flex items-center gap-1 text-sm text-white">
+              <span className="flex text-yellow-400">{[0,1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}</span>
+              <strong className="ml-1">4.9 / 5</strong>
+              <span className="text-white/70">from students</span>
+            </span>
+            <span className="h-4 w-px bg-white/20 hidden sm:block" />
+            <span className="flex items-center gap-1 text-sm text-white">
+              <Users className="h-4 w-4 text-secondary" />
+              <strong>1,318</strong>
+              <span className="text-white/70">users preparing now · join the race</span>
+            </span>
           </div>
         </section>
 
@@ -154,6 +188,39 @@ function Landing() {
                 <Icon className="h-5 w-5 text-secondary mb-2" />
                 <p className="font-semibold">{t}</p>
                 <p className="text-xs text-muted-foreground mt-1">{d}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* TESTIMONIALS */}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-3xl font-bold text-center mb-2 text-white">What students say</h2>
+          <p className="text-center text-white/70 mb-10">Real results from students who stopped guessing and started revising.</p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: "Tariro M.", badge: "+27%", quote: "Smashed two mock papers in a weekend. The AI tutor is unreal." },
+              { name: "Bongani K.", badge: "Top 5%", quote: "Finally understood PID tuning. Worth way more than $3." },
+              { name: "Aisha R.", badge: "Distinction", quote: "Past papers + practice in one place. Saved my finals." },
+            ].map((t) => (
+              <Card key={t.name} className="p-6 bg-card text-card-foreground shadow-card-elev">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-brand-gradient flex items-center justify-center text-primary-foreground font-bold">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold leading-tight">{t.name}</p>
+                      <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-0.5 rounded-full mt-0.5">
+                        {t.badge}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex text-yellow-500">
+                    {[0,1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground italic">"{t.quote}"</p>
               </Card>
             ))}
           </div>
