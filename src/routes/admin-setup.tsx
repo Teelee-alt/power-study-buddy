@@ -33,18 +33,16 @@ function AdminSetup() {
   };
 
   const signUp = async () => {
-    if (exists) { toast.error("Admin already exists. Please sign in instead."); return; }
     setBusy(true);
     const { data: sd, error } = await supabase.auth.signUp({
       email, password,
       options: { emailRedirectTo: `${window.location.origin}/admin`, data: { full_name: name || "Administrator" } },
     });
     if (error) { setBusy(false); return toast.error(error.message); }
-    // If autoconfirm off, user may not have session yet
     if (sd.session) {
       const ok = await claimAfterAuth();
       setBusy(false);
-      if (ok) { toast.success("Admin account created"); nav({ to: "/admin" }); }
+      if (ok) { toast.success(exists ? "Admin credentials reset _ you are now the admin" : "Admin account created"); nav({ to: "/admin" }); }
     } else {
       setBusy(false);
       toast.success("Account created. Confirm your email, sign in, then re-open this page to claim admin.");
@@ -55,8 +53,7 @@ function AdminSetup() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setBusy(false); return toast.error(error.message); }
-    // If no admin yet, claim. If exists, just go to admin page (has_role check there).
-    if (!exists) await claimAfterAuth();
+    await claimAfterAuth();
     setBusy(false);
     toast.success("Welcome, Administrator");
     nav({ to: "/admin" });
@@ -70,37 +67,31 @@ function AdminSetup() {
           <div className="inline-flex items-center gap-2 text-secondary"><Shield className="h-5 w-5" /><span className="font-semibold">Admin Portal</span></div>
           <p className="text-xs text-muted-foreground mt-2">
             {exists === null ? "Checking..." : exists
-              ? <span className="inline-flex items-center gap-1"><Lock className="h-3 w-3" /> Admin account already provisioned _ sign in only</span>
+              ? <span className="inline-flex items-center gap-1"><Lock className="h-3 w-3" /> Admin exists _ sign in, or sign up again to reset admin credentials</span>
               : "First-time setup _ create the administrator account"}
           </p>
         </div>
 
-        {exists === false ? (
-          <Tabs defaultValue="signup">
-            <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="signup">Create admin</TabsTrigger>
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-            </TabsList>
-            <TabsContent value="signup" className="space-y-3 mt-4">
-              <div><Label>Full name</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
-              <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
-              <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
-              <Button onClick={signUp} disabled={busy} className="w-full bg-brand-gradient">Create administrator account</Button>
-            </TabsContent>
-            <TabsContent value="signin" className="space-y-3 mt-4">
-              <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
-              <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
-              <Button onClick={signIn} disabled={busy} className="w-full bg-brand-gradient">Sign in</Button>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <div className="space-y-3">
+        <Tabs defaultValue={exists ? "signin" : "signup"}>
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="signup">{exists ? "Reset admin" : "Create admin"}</TabsTrigger>
+            <TabsTrigger value="signin">Sign in</TabsTrigger>
+          </TabsList>
+          <TabsContent value="signup" className="space-y-3 mt-4">
+            <div><Label>Full name</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
             <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
             <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
-            <Button onClick={signIn} disabled={busy} className="w-full bg-brand-gradient">Sign in as administrator</Button>
-            <p className="text-xs text-muted-foreground text-center">Signup is permanently disabled because an admin already exists.</p>
-          </div>
-        )}
+            <Button onClick={signUp} disabled={busy} className="w-full bg-brand-gradient">
+              {exists ? "Sign up & reset administrator" : "Create administrator account"}
+            </Button>
+            {exists && <p className="text-xs text-muted-foreground text-center">Signing up here replaces the current admin with this new account.</p>}
+          </TabsContent>
+          <TabsContent value="signin" className="space-y-3 mt-4">
+            <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
+            <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
+            <Button onClick={signIn} disabled={busy} className="w-full bg-brand-gradient">Sign in</Button>
+          </TabsContent>
+        </Tabs>
       </Card>
     </div>
   );
