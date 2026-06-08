@@ -9,7 +9,7 @@ export interface ExamCard {
   difficulty?: 'easy' | 'medium' | 'hard';
 }
 
-export const RESEARCH_METHODS_CARDS: ExamCard[] = [
+export const POWER_ELECTRONICS_CARDS: ExamCard[] = [
   // ============================================
   // FUNDAMENTAL CONCEPTS & DEFINITIONS
   // ============================================
