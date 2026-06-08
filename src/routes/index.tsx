@@ -193,6 +193,39 @@ function Landing() {
           </div>
         </section>
 
+        {/* TESTIMONIALS */}
+        <section className="container mx-auto px-4 py-12">
+          <h2 className="text-3xl font-bold text-center mb-2 text-white">What students say</h2>
+          <p className="text-center text-white/70 mb-10">Real results from students who stopped guessing and started revising.</p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: "Tariro M.", badge: "+27%", quote: "Smashed two mock papers in a weekend. The AI tutor is unreal." },
+              { name: "Bongani K.", badge: "Top 5%", quote: "Finally understood PID tuning. Worth way more than $3." },
+              { name: "Aisha R.", badge: "Distinction", quote: "Past papers + practice in one place. Saved my finals." },
+            ].map((t) => (
+              <Card key={t.name} className="p-6 bg-card text-card-foreground shadow-card-elev">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-brand-gradient flex items-center justify-center text-primary-foreground font-bold">
+                      {t.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold leading-tight">{t.name}</p>
+                      <span className="inline-block text-[10px] font-semibold uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-0.5 rounded-full mt-0.5">
+                        {t.badge}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex text-yellow-500">
+                    {[0,1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground italic">"{t.quote}"</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
         {/* FINAL CTA */}
         <section className="container mx-auto px-4 py-16 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white">Your future self is begging you to start.</h2>
