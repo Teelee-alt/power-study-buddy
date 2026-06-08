@@ -45,7 +45,12 @@ function Landing() {
           <div className="inline-flex items-center gap-2 rounded-full border border-secondary/40 bg-secondary/10 px-3 py-1 text-xs text-secondary mb-6">
             <Zap className="h-3 w-3" /> Built from real National Diploma past papers
           </div>
-          <img src={logo} alt="Power Electronics 1 logo" className="mx-auto h-28 w-auto mb-6 drop-shadow-[0_0_60px_rgba(99,102,241,0.55)]" />
+          <img
+            src={logo}
+            alt="Power Electronics 1 logo"
+            onClick={handleLogoTap}
+            className="mx-auto h-28 w-auto mb-6 drop-shadow-[0_0_60px_rgba(99,102,241,0.55)] cursor-pointer select-none"
+          />
           <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight leading-tight text-white">
             Master Power Electronics.<br />
             <span className="text-brand-gradient">Ace your exam with confidence.</span>
