@@ -1,49 +1,50 @@
-# Research Methods Platform Conversion
+# Power Electronics Exam Revision Platform
 
 ## Overview
 
-The application has been successfully converted from **Industrial Automation** to **Research Methods** exam revision platform. All branding, content, UI/UX, navigation, features, and responsive design have been preserved - only the subject matter has changed.
+The application has been successfully converted from **Industrial Automation** to **Power Electronics (HEXCO National Diploma)** exam revision platform. All branding, content, UI/UX, navigation, features, and responsive design have been preserved - only the subject matter has changed to comprehensive power electronics content.
 
-## Conversion Summary
+## Content Summary
 
-### 1. Database Migration
-**File:** `supabase/migrations/20260604_research_methods_migration.sql`
+### 1. Flashcard Database
+**File:** `src/data/research-methods-cards.ts`
 
-- Created 8 research methods topic sets
-- Generated 50+ professionally formatted flashcards
-- Organized by key topics:
-  - Sampling Methods & Techniques
-  - Research Design & Methodology
-  - Data Collection Instruments
-  - Qualitative & Quantitative Research
-  - Ethics in Research
-  - Data Analysis & Statistics
-  - Report Writing & Documentation
-  - Research Paradigms & Frameworks
+- **Q&A Format:** Questions presented first, followed by detailed answers
+- **Complete exam coverage** from HEXCO National Diploma Past Papers (Oct 2019 - Mar 2022)
+- **40+ professional flashcards** organized by topic:
+  - Thyristor Fundamentals (definitions, latching/holding current, forward breakover)
+  - Thyristor Devices (GTO vs SCR comparisons, Schottky diodes)
+  - Power Calculations (device gains, thermal analysis)
+  - Protection Circuits (snubber design with real calculations)
+  - Gate Drive & Triggering (UJT oscillators, commutation)
+  - Rectifier Circuits (single-phase half-wave controlled rectifiers)
+  - Device Protection (dv/dt and di/dt capability)
+  - Design Margins (voltage and current safety factors)
+  - Device Ratings & Surge Analysis
 
 **Content Quality:**
-- Professional academic formatting with tables, formulas (LaTeX), worked examples
-- Harvard referencing style examples
-- Exam-standard answers extracted from 5 past papers (2017-2021)
-- 250+ potential cards with multiple difficulty levels (easy/medium/hard)
+- Professional formatting with **proper LaTeX formulas** ($$notation$$)
+- Step-by-step solutions with numerical examples
+- Industrial-standard calculations and safety factors
+- Multiple difficulty levels (easy/medium/hard)
+- Real exam questions with model answers
 
 ### 2. TypeScript Data Files
 **File:** `src/data/research-methods-cards.ts`
 
-- Complete flashcard dataset (1000+ lines)
+- Complete Power Electronics flashcard dataset with Q&A format
 - Structured ExamCard interface maintained
 - All cards include:
-  - Question (clear, specific)
-  - Answer (comprehensive with formatting)
+  - Question (exam-style, specific)
+  - Answer (comprehensive with step-by-step solutions)
   - Difficulty level (easy/medium/hard)
   - Topic classification
-  - Professional academic content with:
-    - Definitions and explanations
-    - Formulas and mathematical notation ($$LaTeX$$)
-    - Comparison tables
+  - Professional technical content with:
+    - Device definitions and operation
+    - Mathematical formulas in standard LaTeX format
     - Worked examples with calculations
-    - Real-world applications
-    - Step-by-step procedures
+    - Real-world circuit applications
+    - Design procedures and calculations
 
 ### 3. Branding & UI Updates
 
