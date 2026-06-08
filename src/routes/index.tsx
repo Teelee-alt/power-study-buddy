@@ -1,16 +1,31 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck } from "lucide-react";
+import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck, Star, Users } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
 function Landing() {
+  const nav = useNavigate();
+  const tapsRef = useRef<{ count: number; timer: ReturnType<typeof setTimeout> | null }>({ count: 0, timer: null });
+  const handleLogoTap = () => {
+    const s = tapsRef.current;
+    s.count += 1;
+    if (s.timer) clearTimeout(s.timer);
+    s.timer = setTimeout(() => { s.count = 0; }, 1500);
+    if (s.count >= 7) {
+      s.count = 0;
+      if (s.timer) clearTimeout(s.timer);
+      toast.success("Admin portal unlocked");
+      nav({ to: "/admin-setup" });
+    }
+  };
   const [settings, setSettings] = useState<{ primary_agent_name: string; solo_amount: number; pair_amount: number } | null>(null);
   useEffect(() => {
     supabase.from("app_settings").select("primary_agent_name, solo_amount, pair_amount").eq("id", true).maybeSingle()
