@@ -74,6 +74,20 @@ function Landing() {
             <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> No exam dates, ever</span>
             <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-secondary" /> Works offline once installed</span>
           </div>
+          {/* SOCIAL PROOF BAR */}
+          <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-x-5 gap-y-2 rounded-full border border-white/15 bg-white/5 px-5 py-2 backdrop-blur">
+            <span className="flex items-center gap-1 text-sm text-white">
+              <span className="flex text-yellow-400">{[0,1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-current" />)}</span>
+              <strong className="ml-1">4.9 / 5</strong>
+              <span className="text-white/70">from students</span>
+            </span>
+            <span className="h-4 w-px bg-white/20 hidden sm:block" />
+            <span className="flex items-center gap-1 text-sm text-white">
+              <Users className="h-4 w-4 text-secondary" />
+              <strong>1,318</strong>
+              <span className="text-white/70">users preparing now · join the race</span>
+            </span>
+          </div>
         </section>
 
         {/* PAIN _ AGITATE */}
