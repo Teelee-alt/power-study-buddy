@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Shield, Lock } from "lucide-react";
 import logo from "@/assets/logo.png";
@@ -67,31 +66,25 @@ function AdminSetup() {
           <div className="inline-flex items-center gap-2 text-secondary"><Shield className="h-5 w-5" /><span className="font-semibold">Admin Portal</span></div>
           <p className="text-xs text-muted-foreground mt-2">
             {exists === null ? "Checking..." : exists
-              ? <span className="inline-flex items-center gap-1"><Lock className="h-3 w-3" /> Admin exists _ sign in, or sign up again to reset admin credentials</span>
+              ? <span className="inline-flex items-center gap-1"><Lock className="h-3 w-3" /> Sign in with your administrator credentials</span>
               : "First-time setup _ create the administrator account"}
           </p>
         </div>
 
-        <Tabs defaultValue={exists ? "signin" : "signup"}>
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="signup">{exists ? "Reset admin" : "Create admin"}</TabsTrigger>
-            <TabsTrigger value="signin">Sign in</TabsTrigger>
-          </TabsList>
-          <TabsContent value="signup" className="space-y-3 mt-4">
-            <div><Label>Full name</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
-            <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
-            <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
-            <Button onClick={signUp} disabled={busy} className="w-full bg-brand-gradient">
-              {exists ? "Sign up & reset administrator" : "Create administrator account"}
-            </Button>
-            {exists && <p className="text-xs text-muted-foreground text-center">Signing up here replaces the current admin with this new account.</p>}
-          </TabsContent>
-          <TabsContent value="signin" className="space-y-3 mt-4">
+        {exists ? (
+          <div className="space-y-3 mt-4">
             <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
             <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
             <Button onClick={signIn} disabled={busy} className="w-full bg-brand-gradient">Sign in</Button>
-          </TabsContent>
-        </Tabs>
+          </div>
+        ) : (
+          <div className="space-y-3 mt-4">
+            <div><Label>Full name</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
+            <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
+            <div><Label>Password</Label><Input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
+            <Button onClick={signUp} disabled={busy} className="w-full bg-brand-gradient">Create administrator account</Button>
+          </div>
+        )}
       </Card>
     </div>
   );

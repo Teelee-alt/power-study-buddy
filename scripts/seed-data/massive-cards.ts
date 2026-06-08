@@ -119,7 +119,7 @@ Charge times:
 - Maximum (2kΩ): 13.86 ms → late firing (90°)
 
 **Circuit configuration:**
-```
+[code]
     +24V (VBB)
      |
     R_B2 (220Ω)
@@ -136,7 +136,7 @@ Charge times:
     C_E (10μF)
      |
    GND
-```
+[code]
 
 **Output specifications:**
 - Voltage: 24V pulses
@@ -236,7 +236,7 @@ Choose 100W resistor provides safety margin.
 | Blocking diode | 1N4148 | - | Reverse protect |
 
 **Complete circuit connectivity:**
-```
+[code]
 Power stage: 500V DC ---+--- L(10μH) --- 100A Load --- GND
                         |
                       SCR
@@ -249,7 +249,7 @@ Gate stage: Control --- R(47Ω) --- Gate
                           C(10nF)---+---Zener(10V)---Diode
                                     |
                                  Cathode
-```
+[code]
 
 **Design margin verification:**
 - Dv/dt immunity: 120 V/μs (2.5× safety margin) ✓
@@ -484,7 +484,7 @@ For successful commutation:
 - AC chopper circuits
 
 **Circuit diagram concept:**
-```
+[code]
   E+ ---R_L--- Output
   |              |
   +----C----+    |
@@ -494,7 +494,7 @@ For successful commutation:
   T2--------+----+
   |
   E-
-```
+[code]
 
 This complementary SCR approach ensures reliable turn-off without commutation circuit complexity.`,
     difficulty: 'hard'
