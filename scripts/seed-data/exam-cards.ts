@@ -225,7 +225,7 @@ $$L = \\frac{V_s - V_f}{(di/dt)_{allowed}} = \\frac{850}{150 \\times 10^6} = 5.6
 **Choose: L = 5μH**
 
 **Complete Snubber Network:**
-```
+[code]
         +----C_s----+
         |  (0.22μF) |
     SCR |           |----R_s (18Ω)----+
@@ -233,7 +233,7 @@ $$L = \\frac{V_s - V_f}{(di/dt)_{allowed}} = \\frac{850}{150 \\times 10^6} = 5.6
         +-----+-------+-----Series L---+
                       |    (5μH)
                    Cathode
-```
+[code]
 
 **Design verification:**
 - Dv/dt immunity: 80 V/μs (2.5× safety margin)

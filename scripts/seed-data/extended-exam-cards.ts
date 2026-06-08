@@ -260,10 +260,10 @@ This difference represents power loss and heat dissipation in the load resistanc
 Provide galvanic isolation between low-voltage control logic (5V) and high-voltage power stage (400V) using light as the isolation medium.
 
 **System Block Diagram:**
-```
+[code]
 Control Logic (5V) → Optoisolator Input Stage → Light Coupling → 
 Optoisolator Output → Gate Drive Circuit → SCR Gate Terminal
-```
+[code]
 
 ---
 
