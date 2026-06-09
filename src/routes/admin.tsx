@@ -69,7 +69,7 @@ function Admin() {
 
 function RequestsPanel() {
   const [rows, setRows] = useState<any[]>([]);
-  const [filter, setFilter] = useState<"pending" | "all">("pending");
+  const [filter, setFilter] = useState<"pending" | "all">("all");
   const [loadingRows, setLoadingRows] = useState(true);
 
   const load = async () => {
@@ -87,6 +87,10 @@ function RequestsPanel() {
     setLoadingRows(false);
   };
   useEffect(() => { load(); }, [filter]);
+  useEffect(() => {
+    const id = window.setInterval(load, 8000);
+    return () => window.clearInterval(id);
+  }, [filter]);
 
   const requestCounts = useMemo(() => ({
     total: rows.length,
@@ -1000,7 +1004,6 @@ function AgentsPanel() {
 
 function SettingsPanel() {
   const [agent, setAgent] = useState("");
-  const [verifiedNote, setVerifiedNote] = useState("Verified ZIM Agent");
   const [solo, setSolo] = useState(5);
   const [pair, setPair] = useState(8);
   const [busy, setBusy] = useState(false);
@@ -1032,19 +1035,15 @@ function SettingsPanel() {
             <Settings2 className="h-4 w-4 text-secondary" />
             <span>Public payment contact</span>
             <span className="inline-flex items-center gap-1 rounded-full border border-secondary/50 bg-secondary/10 px-2.5 py-1 text-[11px] font-semibold text-secondary">
-              <ShieldCheck className="h-3.5 w-3.5" /> {verifiedNote}
+              <ShieldCheck className="h-3.5 w-3.5" /> Verified ZIM Agent
             </span>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Use the exact name and phone number you want students to trust and contact.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-3">
-          <div className="md:col-span-2">
+          <div className="md:col-span-3">
             <Label>Authorised agent name and contact</Label>
             <Input value={agent} onChange={e => setAgent(e.target.value)} maxLength={255} placeholder="e.g. Tinashe Lee Vurayai (+263 71 3043 376)" />
-          </div>
-          <div>
-            <Label>Trust label</Label>
-            <Input value={verifiedNote} onChange={e => setVerifiedNote(e.target.value)} maxLength={60} />
           </div>
           <div>
             <Label>Solo amount ($)</Label>
