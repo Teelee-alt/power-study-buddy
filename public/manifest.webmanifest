@@ -1,7 +1,7 @@
 {
-  "name": "Research Methods Revision",
-  "short_name": "Research Methods",
-  "description": "Interactive Q&A flashcards for National Diploma Research Methods students.",
+  "name": "Power Electronics 1",
+  "short_name": "Power Elec 1",
+  "description": "Interactive Q&A flashcards for HEXCO National Diploma Power Electronics 1 students.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
