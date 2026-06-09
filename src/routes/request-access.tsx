@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { accessApi } from "@/lib/access-api";
-import { ArrowLeft, UserPlus, CheckCircle2, Mail, UserCheck } from "lucide-react";
+import { ArrowLeft, UserPlus, CheckCircle2, UserCheck, ShieldCheck } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,13 +25,25 @@ function RequestAccessPage() {
       .then(({ data }) => { if (data?.primary_agent_name) setAgentName(data.primary_agent_name); });
   }, []);
 
+  const submitDirect = async () => {
+    const { error } = await supabase.from("access_requests").insert({
+      full_name: full_name.trim(),
+      whatsapp: whatsapp.trim(),
+    });
+    if (error) throw error;
+  };
+
   const send = async () => {
     if (!full_name.trim() || !whatsapp.trim()) {
       return toast.error("Full name and WhatsApp number are required");
     }
     setBusy(true);
     try {
-      await accessApi.submit({ full_name, whatsapp });
+      try {
+        await accessApi.submit({ full_name, whatsapp });
+      } catch {
+        await submitDirect();
+      }
       setDone(true);
       toast.success("Request submitted");
     } catch (e: any) {
@@ -48,7 +60,7 @@ function RequestAccessPage() {
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
         </Link>
         <Link to="/" className="flex justify-center mb-6">
-          <img src={logo} alt="Research Methods" className="h-16" />
+          <img src={logo} alt="Power Electronics 1" className="h-16" />
         </Link>
 
         {done ? (
@@ -67,11 +79,16 @@ function RequestAccessPage() {
           <>
             <h1 className="text-2xl font-bold text-center">Request Access</h1>
             <p className="text-sm text-muted-foreground text-center mt-1">
-              Fill in your details. After payment is confirmed, your access code is emailed to you.
+              Fill in your details. After payment is confirmed, admin sends your code through Gmail or WhatsApp.
             </p>
-            <div className="mt-4 rounded-md border border-secondary/40 bg-secondary/5 p-3 flex items-start gap-2 text-sm">
-              <UserCheck className="h-4 w-4 text-secondary mt-0.5" />
-              <span>Authorised agent: <strong>{agentName}</strong></span>
+            <div className="mt-4 rounded-md border border-secondary/40 bg-secondary/5 p-3 text-sm space-y-2">
+              <div className="flex items-start gap-2">
+                <UserCheck className="h-4 w-4 text-secondary mt-0.5" />
+                <span>Authorised agent: <strong>{agentName}</strong></span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">
+                <ShieldCheck className="h-3.5 w-3.5" /> Verified ZIM Agent
+              </div>
             </div>
             <div className="space-y-3 mt-6">
               <div>
