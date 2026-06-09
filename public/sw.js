@@ -5,7 +5,7 @@
 // - Cache-first for hashed build assets under /assets/.
 // - Stale-while-revalidate for other same-origin GETs (images, fonts).
 
-const VERSION = "v4";
+const VERSION = "v5";
 const SHELL_CACHE = `shell-${VERSION}`;
 const ASSET_CACHE = `assets-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;
@@ -77,6 +77,12 @@ self.addEventListener("fetch", (event) => {
         }
       })
     );
+    return;
+  }
+
+  // Skip caching for live database/function calls so admin/request pages stay fresh in preview.
+  if (url.pathname.startsWith("/rest/v1/") || url.pathname.startsWith("/functions/v1/")) {
+    event.respondWith(fetch(req));
     return;
   }
 
