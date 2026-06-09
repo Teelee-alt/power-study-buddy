@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Trash2, ShieldOff, ShieldCheck, Copy, Download, Search, Edit3, Save, X, Check, Send, Mail, AlertTriangle, Upload } from "lucide-react";
+import { Plus, Trash2, ShieldOff, ShieldCheck, Copy, Download, Search, Edit3, Save, X, Check, Send, Mail, AlertTriangle, Upload, RefreshCw, Settings2 } from "lucide-react";
 import { accessApi } from "@/lib/access-api";
 import { UserManualPanel } from "@/components/admin/DeploymentManualPanels";
 
@@ -70,14 +70,29 @@ function Admin() {
 function RequestsPanel() {
   const [rows, setRows] = useState<any[]>([]);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
+  const [loadingRows, setLoadingRows] = useState(true);
 
   const load = async () => {
+    setLoadingRows(true);
     let q = supabase.from("access_requests").select("*").order("created_at", { ascending: false });
     if (filter === "pending") q = q.eq("status", "pending");
-    const { data } = await q;
+    const { data, error } = await q;
+    if (error) {
+      toast.error(error.message || "Could not load access requests");
+      setRows([]);
+      setLoadingRows(false);
+      return;
+    }
     setRows(data || []);
+    setLoadingRows(false);
   };
   useEffect(() => { load(); }, [filter]);
+
+  const requestCounts = useMemo(() => ({
+    total: rows.length,
+    pending: rows.filter((row) => row.status === "pending").length,
+    approved: rows.filter((row) => row.status === "approved").length,
+  }), [rows]);
 
   const approve = async (id: string) => {
     try {
@@ -107,12 +122,20 @@ function RequestsPanel() {
           request below and click <strong>Approve</strong> — a unique access code is generated and shown on the row.
           Then send it manually using <strong>Open Gmail</strong> or <strong>Send via WhatsApp</strong> (both pre-fill the code).</span></p>
       </Card>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         <Button size="sm" variant={filter === "pending" ? "default" : "outline"} onClick={() => setFilter("pending")}>Pending</Button>
         <Button size="sm" variant={filter === "all" ? "default" : "outline"} onClick={() => setFilter("all")}>All</Button>
-        <div className="ml-auto text-sm text-muted-foreground self-center">{rows.length} request(s)</div>
+        <Button size="sm" variant="outline" onClick={load}>
+          <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+        </Button>
+        <div className="ml-auto flex flex-wrap gap-2 text-xs">
+          <Badge variant="outline">Visible: {requestCounts.total}</Badge>
+          <Badge variant="outline">Pending: {requestCounts.pending}</Badge>
+          <Badge variant="outline">Approved: {requestCounts.approved}</Badge>
+        </div>
       </div>
-      {rows.length === 0 && <Card className="p-6 bg-card text-card-foreground text-sm text-muted-foreground">No requests.</Card>}
+      {loadingRows && <Card className="p-6 bg-card text-card-foreground text-sm text-muted-foreground">Loading requests…</Card>}
+      {!loadingRows && rows.length === 0 && <Card className="p-6 bg-card text-card-foreground text-sm text-muted-foreground">No requests.</Card>}
       {rows.map(r => (
         <Card key={r.id} className="p-5 bg-card text-card-foreground">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -902,33 +925,74 @@ function PaymentsPanel() {
 function AgentsPanel() {
   const [agents, setAgents] = useState<any[]>([]);
   const [name, setName] = useState(""); const [contact, setContact] = useState("");
-  const load = async () => { const { data } = await supabase.from("agents").select("*").order("created_at", { ascending: false }); setAgents(data || []); };
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [loadingAgents, setLoadingAgents] = useState(true);
+  const load = async () => {
+    setLoadingAgents(true);
+    const { data, error } = await supabase.from("agents").select("*").order("created_at", { ascending: false });
+    if (error) {
+      toast.error(error.message || "Could not load agents");
+      setAgents([]);
+      setLoadingAgents(false);
+      return;
+    }
+    setAgents(data || []);
+    setLoadingAgents(false);
+  };
   useEffect(() => { load(); }, []);
   const add = async () => {
     if (!name) return;
-    await supabase.from("agents").insert({ name, contact });
+    const payload = { name: name.trim(), contact: contact.trim() || null };
+    const { error } = editingId
+      ? await supabase.from("agents").update(payload).eq("id", editingId)
+      : await supabase.from("agents").insert(payload);
+    if (error) return toast.error(error.message);
     setName(""); setContact(""); load();
+    setEditingId(null);
   };
-  const del = async (id: string) => { await supabase.from("agents").delete().eq("id", id); load(); };
+  const del = async (id: string) => {
+    const { error } = await supabase.from("agents").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    load();
+  };
+  const edit = (agent: any) => {
+    setEditingId(agent.id);
+    setName(agent.name || "");
+    setContact(agent.contact || "");
+  };
   return (
     <div className="space-y-4 mt-4">
       <Card className="p-6 bg-card text-card-foreground">
+        <div className="mb-4 rounded-md border border-secondary/40 bg-secondary/5 p-3 text-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border border-secondary/50 bg-secondary/10 px-3 py-1 text-xs font-semibold text-secondary">
+            <ShieldCheck className="h-3.5 w-3.5" /> Verified ZIM Agent
+          </div>
+          <p className="mt-2 text-muted-foreground">Agents added here can be featured in the public settings area to make the payment flow look trusted and professional.</p>
+        </div>
         <div className="grid md:grid-cols-3 gap-3">
           <Input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
           <Input placeholder="Contact" value={contact} onChange={e => setContact(e.target.value)} />
-          <Button onClick={add} className="bg-brand-gradient">Add agent</Button>
+          <div className="flex gap-2">
+            <Button onClick={add} className="bg-brand-gradient flex-1">{editingId ? "Save agent" : "Add agent"}</Button>
+            {editingId && <Button variant="outline" onClick={() => { setEditingId(null); setName(""); setContact(""); }}>Cancel</Button>}
+          </div>
         </div>
       </Card>
       <Card className="p-0 bg-card text-card-foreground overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-muted/40"><tr><th className="text-left p-3">Name</th><th className="text-left p-3">Contact</th><th></th></tr></thead>
+          <thead className="bg-muted/40"><tr><th className="text-left p-3">Name</th><th className="text-left p-3">Contact</th><th className="text-left p-3">Status</th><th></th></tr></thead>
           <tbody>{agents.map(a => (
             <tr key={a.id} className="border-t border-border/40">
               <td className="p-3">{a.name}</td><td className="p-3">{a.contact}</td>
-              <td className="p-3"><Button variant="ghost" size="sm" onClick={() => del(a.id)}><Trash2 className="h-4 w-4" /></Button></td>
+              <td className="p-3"><Badge variant="outline" className="inline-flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> Verified ZIM Agent</Badge></td>
+              <td className="p-3 flex gap-1">
+                <Button variant="ghost" size="sm" onClick={() => edit(a)}><Edit3 className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="sm" onClick={() => del(a.id)}><Trash2 className="h-4 w-4" /></Button>
+              </td>
             </tr>
           ))}</tbody>
         </table>
+        {loadingAgents && <div className="p-4 text-sm text-muted-foreground">Loading agents…</div>}
       </Card>
     </div>
   );
@@ -936,6 +1000,7 @@ function AgentsPanel() {
 
 function SettingsPanel() {
   const [agent, setAgent] = useState("");
+  const [verifiedNote, setVerifiedNote] = useState("Verified ZIM Agent");
   const [solo, setSolo] = useState(5);
   const [pair, setPair] = useState(8);
   const [busy, setBusy] = useState(false);
@@ -962,10 +1027,24 @@ function SettingsPanel() {
       <Card className="p-6 bg-card text-card-foreground">
         <h3 className="font-semibold mb-1">Public app settings</h3>
         <p className="text-xs text-muted-foreground mb-4">Shown on home page, request-access page and user dashboard.</p>
+        <div className="mb-4 rounded-md border border-secondary/40 bg-secondary/5 p-4">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-foreground">
+            <Settings2 className="h-4 w-4 text-secondary" />
+            <span>Public payment contact</span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-secondary/50 bg-secondary/10 px-2.5 py-1 text-[11px] font-semibold text-secondary">
+              <ShieldCheck className="h-3.5 w-3.5" /> {verifiedNote}
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Use the exact name and phone number you want students to trust and contact.</p>
+        </div>
         <div className="grid md:grid-cols-3 gap-3">
-          <div className="md:col-span-3">
-            <Label>Authorised agent name</Label>
-            <Input value={agent} onChange={e => setAgent(e.target.value)} maxLength={255} placeholder="e.g. John Doe (+263 77 123 4567)" />
+          <div className="md:col-span-2">
+            <Label>Authorised agent name and contact</Label>
+            <Input value={agent} onChange={e => setAgent(e.target.value)} maxLength={255} placeholder="e.g. Tinashe Lee Vurayai (+263 71 3043 376)" />
+          </div>
+          <div>
+            <Label>Trust label</Label>
+            <Input value={verifiedNote} onChange={e => setVerifiedNote(e.target.value)} maxLength={60} />
           </div>
           <div>
             <Label>Solo amount ($)</Label>
