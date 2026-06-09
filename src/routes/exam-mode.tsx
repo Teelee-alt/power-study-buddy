@@ -37,40 +37,46 @@ function ExamMode() {
   useEffect(() => {
     if (!user) return;
     setFetching(true);
-    
-    // Load cards with optimized performance
     const loadCards = async () => {
       try {
-        // First try to load from Supabase
-        const { data: examCards } = await supabase
-          .from("cards")
-          .select("id, question, answer, difficulty, topic_set_id")
-          .eq("topic_set_id", "f0000010-0000-0000-0000-000000000000")
-          .order("order_index")
-          .limit(500);
-        
-        // If found in database, use those cards
-        if (examCards && examCards.length > 0) {
-          setCards(examCards.map((card: any) => ({
-            id: card.id,
-            question: card.question,
-            answer: card.answer,
-            difficulty: card.difficulty || 'medium',
-            topic: 'EXAM Mode'
-          })));
-        } else {
-          // Use comprehensive local exam cards
-          setCards(ALL_EXAM_CARDS);
+        // Find topic sets whose title looks exam-related and aggregate their cards.
+        const { data: sets } = await supabase
+          .from("topic_sets")
+          .select("id, title")
+          .or("title.ilike.%exam%,title.ilike.%practice%");
+        const ids = (sets || []).map((s: any) => s.id);
+        let rows: any[] = [];
+        if (ids.length > 0) {
+          const { data } = await supabase
+            .from("cards")
+            .select("id, question, answer, difficulty, topic_set_id")
+            .in("topic_set_id", ids)
+            .order("order_index");
+          rows = data || [];
         }
-      } catch (error) {
-        // Fallback to local cards if database fails
-        console.error("[v0] Error loading from database, using local cards:", error);
+        // Fallback: if no exam-tagged sets found, pull every card so users still see content.
+        if (rows.length === 0) {
+          const { data } = await supabase
+            .from("cards")
+            .select("id, question, answer, difficulty, topic_set_id")
+            .order("order_index")
+            .limit(500);
+          rows = data || [];
+        }
+        setCards(rows.map((c: any) => ({
+          id: c.id,
+          question: c.question,
+          answer: c.answer,
+          difficulty: c.difficulty || "medium",
+          topic: "EXAM Mode",
+        })));
+      } catch (e) {
+        console.error("[exam-mode] load failed", e);
         setCards(ALL_EXAM_CARDS);
       } finally {
         setFetching(false);
       }
     };
-    
     loadCards();
   }, [user]);
 

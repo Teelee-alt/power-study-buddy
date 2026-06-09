@@ -616,6 +616,43 @@ The setpoint R(s) goes into a summing junction; the error E(s) drives the contro
   );
 }
 
+function CreateUserCard({ onCreated }: { onCreated: () => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!email || !password) return toast.error("Email and password are required");
+    setBusy(true);
+    try {
+      await accessApi.createUser({ email, password, full_name: fullName, access_level: "full" });
+      toast.success(`User ${email} created with full access`);
+      setEmail(""); setPassword(""); setFullName("");
+      onCreated();
+    } catch (e: any) {
+      toast.error(e?.message || "Create failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card className="p-5 bg-card text-card-foreground border-secondary/30">
+      <h3 className="font-semibold mb-1 flex items-center gap-2"><Plus className="h-4 w-4 text-secondary" /> Add new user</h3>
+      <p className="text-xs text-muted-foreground mb-3">Creates a confirmed account with full access immediately. Share the password with the student.</p>
+      <div className="grid md:grid-cols-3 gap-3">
+        <div><Label>Full name</Label><Input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Jane Doe" /></div>
+        <div><Label>Email</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="jane@example.com" /></div>
+        <div><Label>Password</Label><Input type="text" value={password} onChange={e => setPassword(e.target.value)} placeholder="min 6 chars" /></div>
+      </div>
+      <Button onClick={submit} disabled={busy} className="mt-3 bg-brand-gradient">
+        <Plus className="h-4 w-4 mr-1" /> {busy ? "Creating..." : "Create user with full access"}
+      </Button>
+    </Card>
+  );
+}
+
 function UsersPanel() {
   const [users, setUsers] = useState<any[]>([]);
   const [codesByUser, setCodesByUser] = useState<Record<string, any[]>>({});
@@ -684,6 +721,7 @@ function UsersPanel() {
 
   return (
     <div className="space-y-4 mt-4">
+      <CreateUserCard onCreated={load} />
       <Card className="p-4 bg-card text-card-foreground">
         <div className="relative">
           <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
