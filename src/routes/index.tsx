@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck, Star, Users } from "lucide-react";
+import { Cpu, KeyRound, Sparkles, Mail, BookOpen, Zap, Trophy, Brain, Clock, CheckCircle2, Download, UserPlus, UserCheck, Star, Users, ShieldCheck } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { InstallAppButton } from "@/components/InstallAppButton";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,7 +57,7 @@ function Landing() {
           </h1>
           <p className="mt-5 max-w-2xl mx-auto text-lg text-white/80">
             Every concept that has ever appeared in your exam, rebuilt as flip-cards your brain actually remembers.
-            <strong className="text-white"> First 5 cards of every topic are free.</strong> No card. No setup. No catch.
+            <strong className="text-white"> Full topic content is available once access is approved.</strong> No card. No setup. No catch.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="bg-brand-gradient text-primary-foreground shadow-glow text-base">
@@ -166,9 +166,14 @@ function Landing() {
             <p className="text-center mt-6 text-sm text-muted-foreground">Pay any authorised agent in cash. No card. No online payment.</p>
             <div className="mt-6 rounded-lg border border-secondary/40 bg-secondary/5 p-4 flex items-center justify-center gap-2 text-sm text-center">
               <UserCheck className="h-4 w-4 text-secondary shrink-0" />
-              {agent
-                ? <span className="text-foreground">Authorised agent: <strong>{agent}</strong></span>
-                : <span className="text-muted-foreground">Admin will name your authorised agent after you submit a request.</span>}
+              {agent ? (
+                <span className="text-foreground inline-flex items-center justify-center gap-2 flex-wrap">
+                  <span>Authorised agent: <strong>{agent}</strong></span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-secondary/50 bg-secondary/10 px-2.5 py-1 text-[11px] font-semibold text-secondary">
+                    <ShieldCheck className="h-3.5 w-3.5" /> Verified ZIM Agent
+                  </span>
+                </span>
+              ) : <span className="text-muted-foreground">Admin will name your authorised agent after you submit a request.</span>}
             </div>
           </Card>
         </section>
