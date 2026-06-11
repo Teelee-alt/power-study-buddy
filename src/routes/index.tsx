@@ -164,11 +164,11 @@ function Landing() {
               </div>
             </div>
             <p className="text-center mt-6 text-sm text-muted-foreground">Pay any authorised agent in cash. No card. No online payment.</p>
-            <div className="mt-6 rounded-lg border border-secondary/40 bg-secondary/5 p-4 flex items-center justify-center gap-2 text-sm text-center">
+            <div className="mt-6 rounded-lg border border-secondary/40 bg-secondary/5 p-4 flex items-center justify-center gap-2 text-sm text-center text-white">
               <UserCheck className="h-4 w-4 text-secondary shrink-0" />
               {agent ? (
-                <span className="text-foreground inline-flex items-center justify-center gap-2 flex-wrap">
-                  <span>Authorised agent: <strong>{agent}</strong></span>
+                <span className="text-white inline-flex items-center justify-center gap-2 flex-wrap">
+                  <span className="text-white">Authorised agent: <strong className="text-white">{agent}</strong></span>
                   <span className="inline-flex items-center gap-1 rounded-full border border-secondary/50 bg-secondary/10 px-2.5 py-1 text-[11px] font-semibold text-secondary">
                     <ShieldCheck className="h-3.5 w-3.5" /> Verified ZIM Agent
                   </span>
