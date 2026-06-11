@@ -88,10 +88,10 @@ function Dashboard() {
             {totalCards > 0 && <span className="text-xs font-medium">· {totalCards} cards total</span>}
           </p>
           {showAgent && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-secondary/40 bg-secondary/5 px-3 py-1.5 text-sm">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-md border border-secondary/40 bg-secondary/5 px-3 py-1.5 text-sm text-white">
               <UserCheck className="h-4 w-4 text-secondary" />
-              <span className="inline-flex items-center gap-2 flex-wrap">
-                <span>Authorised agent: <strong>{agentName}</strong></span>
+              <span className="inline-flex items-center gap-2 flex-wrap text-white">
+                <span className="text-white">Authorised agent: <strong className="text-white">{agentName}</strong></span>
                 <span className="inline-flex items-center gap-1 rounded-full border border-secondary/50 bg-secondary/10 px-2.5 py-1 text-[11px] font-semibold text-secondary">
                   <ShieldCheck className="h-3.5 w-3.5" /> Verified ZIM Agent
                 </span>
