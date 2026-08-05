@@ -155,7 +155,7 @@ function RequestsPanel() {
                 <h4 className="font-semibold">{r.full_name}</h4>
                 <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "outline"}>{r.status}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">📱 <a className="underline" href={`https://wa.me/${r.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer">{r.whatsapp}</a></p>
+              {r.whatsapp && <p className="text-sm text-muted-foreground mt-1">📱 <a className="underline" href={`https://wa.me/${String(r.whatsapp).replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer">{r.whatsapp}</a></p>}
               {r.email && <p className="text-sm text-muted-foreground">✉️ <a href={`mailto:${r.email}`} className="underline">{r.email}</a></p>}
               {r.generated_code && (
                 <div className="mt-3 p-3 rounded bg-secondary/10 border border-secondary/40">

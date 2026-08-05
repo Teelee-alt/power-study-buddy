@@ -8,11 +8,13 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Shield, Lock } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/admin-setup")({ component: AdminSetup });
 
 function AdminSetup() {
   const nav = useNavigate();
+  const { refresh } = useAuth();
   const [exists, setExists] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,6 +42,7 @@ function AdminSetup() {
     if (error) { setBusy(false); return toast.error(error.message); }
     if (sd.session) {
       const ok = await claimAfterAuth();
+      if (ok) await refresh();
       setBusy(false);
       if (ok) { toast.success(exists ? "Admin credentials reset _ you are now the admin" : "Admin account created"); nav({ to: "/admin" }); }
     } else {
@@ -52,7 +55,9 @@ function AdminSetup() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setBusy(false); return toast.error(error.message); }
-    await claimAfterAuth();
+    const claimed = await claimAfterAuth();
+    if (!claimed) { setBusy(false); return; }
+    await refresh();
     setBusy(false);
     toast.success("Welcome, Administrator");
     nav({ to: "/admin" });
