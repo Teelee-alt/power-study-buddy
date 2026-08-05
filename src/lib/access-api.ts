@@ -41,4 +41,6 @@ export const accessApi = {
     callFn<{ ok: true }>("access-reject", input),
   createUser: (input: { email: string; password: string; full_name?: string; access_level?: "free" | "full" }) =>
     callFn<{ ok: true; user_id: string }>("admin-create-user", input),
+  deleteUser: (input: { user_id: string }) =>
+    callFn<{ ok: true }>("admin-delete-user", input),
 };

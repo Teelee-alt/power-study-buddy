@@ -33,6 +33,9 @@ function Admin() {
     }
   }, [user, isAdmin, loading, nav]);
 
+  if (loading) {
+    return <div className="min-h-screen bg-hero flex items-center justify-center text-muted-foreground">Loading admin dashboard…</div>;
+  }
   if (!isAdmin) return null;
 
   return (
@@ -41,7 +44,8 @@ function Admin() {
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6 text-white">Admin dashboard</h1>
         <Tabs defaultValue="requests">
-          <TabsList className="flex flex-wrap h-auto">
+          <div className="overflow-x-auto pb-1">
+          <TabsList className="flex w-max min-w-full h-auto">
             <TabsTrigger value="requests">Access Requests</TabsTrigger>
             <TabsTrigger value="codes">Access Codes</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
@@ -52,6 +56,7 @@ function Admin() {
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="manual">User Manual</TabsTrigger>
           </TabsList>
+          </div>
           <TabsContent value="requests"><RequestsPanel /></TabsContent>
           <TabsContent value="codes"><CodesPanel /></TabsContent>
           <TabsContent value="content"><ContentPanel /></TabsContent>
@@ -113,7 +118,9 @@ function RequestsPanel() {
   };
   const del = async (id: string) => {
     if (!confirm("Delete this request?")) return;
-    await supabase.from("access_requests").delete().eq("id", id);
+    const { error } = await supabase.from("access_requests").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Request deleted");
     load();
   };
   const copy = (code: string) => { navigator.clipboard?.writeText(code); toast.success(`Copied ${code}`); };
@@ -148,7 +155,7 @@ function RequestsPanel() {
                 <h4 className="font-semibold">{r.full_name}</h4>
                 <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "outline"}>{r.status}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">📱 <a className="underline" href={`https://wa.me/${r.whatsapp.replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer">{r.whatsapp}</a></p>
+              {r.whatsapp && <p className="text-sm text-muted-foreground mt-1">📱 <a className="underline" href={`https://wa.me/${String(r.whatsapp).replace(/[^0-9]/g, "")}`} target="_blank" rel="noreferrer">{r.whatsapp}</a></p>}
               {r.email && <p className="text-sm text-muted-foreground">✉️ <a href={`mailto:${r.email}`} className="underline">{r.email}</a></p>}
               {r.generated_code && (
                 <div className="mt-3 p-3 rounded bg-secondary/10 border border-secondary/40">
@@ -687,7 +694,11 @@ function UsersPanel() {
   const [deleteConfirm, setDeleteConfirm] = useState<Record<string, number>>({});
 
   const load = async () => {
-    const { data: u } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    const { data: u, error: userError } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    if (userError) {
+      toast.error(userError.message || "Could not load users");
+      return;
+    }
     setUsers(u || []);
     // Codes issued/bound directly to the user
     const { data: bound } = await supabase.from("access_codes").select("id, code, amount, total_seats, used_seats, agent_name, bound_user_id, created_at");
@@ -709,7 +720,8 @@ function UsersPanel() {
 
   const toggle = async (u: any) => {
     const next = u.access_level === "full" ? "free" : "full";
-    await supabase.from("profiles").update({ access_level: next }).eq("id", u.id);
+    const { error } = await supabase.from("profiles").update({ access_level: next }).eq("id", u.id);
+    if (error) return toast.error(error.message);
     load();
   };
 
@@ -728,8 +740,8 @@ function UsersPanel() {
 
   const deleteUser = async (userId: string) => {
     try {
-      await supabase.from("profiles").delete().eq("id", userId);
-      toast.success("User deleted");
+      await accessApi.deleteUser({ user_id: userId });
+      toast.success("User and sign-in account deleted");
       setDeleteConfirm(prev => ({ ...prev, [userId]: 0 }));
       load();
     } catch (e: any) {
@@ -755,8 +767,8 @@ function UsersPanel() {
           <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search user or code..." className="pl-9" />
         </div>
       </Card>
-      <Card className="p-0 bg-card text-card-foreground overflow-hidden">
-        <table className="w-full text-sm">
+      <Card className="p-0 bg-card text-card-foreground overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-muted/40"><tr>
             <th className="text-left p-3">Email</th>
             <th className="text-left p-3">Name</th>

@@ -5,7 +5,7 @@
 // - Cache-first for hashed build assets under /assets/.
 // - Stale-while-revalidate for other same-origin GETs (images, fonts).
 
-const VERSION = "v5";
+const VERSION = "v6";
 const SHELL_CACHE = `shell-${VERSION}`;
 const ASSET_CACHE = `assets-${VERSION}`;
 const RUNTIME_CACHE = `runtime-${VERSION}`;

@@ -39,13 +39,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setLoading(true);
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
-        setTimeout(() => loadProfile(s.user.id), 0);
+        setTimeout(() => loadProfile(s.user.id).finally(() => setLoading(false)), 0);
       } else {
         setProfile(null);
         setIsAdmin(false);
+        setLoading(false);
       }
     });
     supabase.auth.getSession().then(({ data }) => {

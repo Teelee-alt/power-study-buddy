@@ -121,7 +121,7 @@ function Revise() {
           {hidden && <div className="fixed inset-0 z-[100] bg-background flex items-center justify-center text-muted-foreground text-sm">Protected. Return focus to the app to continue.</div>}
           <Card
             className={`p-8 md:p-10 min-h-[420px] bg-gradient-to-br ${flipped ? "from-purple-600/15 to-indigo-600/10" : "from-slate-50/5 to-slate-100/5"} text-card-foreground shadow-lg cursor-pointer protected-watermark transition-all duration-300 border-2 border-purple-500/30 hover:border-purple-500/50`}
-            data-watermark={profile?.email || "INDUSTRIAL AUTOMATION"}
+            data-watermark="Power Electronics"
             onClick={() => !locked && setFlipped((f) => !f)}
           >
             {false ? (
