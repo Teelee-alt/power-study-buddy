@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       </div>
       
       <p style="color:#94a3b8;line-height:1.6;margin:24px 0 0 0;font-size:13px">
-        Questions or issues? Contact us at <strong>powerelectronics1@gmail.com</strong>
+        Questions or issues? Contact us at <strong>examgeniuspro@gmail.com</strong>
       </p>
       
       <div style="margin-top:24px;padding-top:16px;border-top:1px solid #334155;text-align:center">
